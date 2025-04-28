@@ -32,12 +32,13 @@ rm -rf "${BUILD:?}/${BASEDIR}"
 mkdir -p "${BUILD}/${BASEDIR}"
 
 # Rebuild and copy firmware-update
-pushd apps/firmware-update >/dev/null
-    rm -rf "build/x86_64-unknown-uefi"
-    make "build/x86_64-unknown-uefi/boot.efi"
-    cp -v "build/x86_64-unknown-uefi/boot.efi" "${BUILD}/${BASEDIR}"
-    cp -rv "res" "${BUILD}/${BASEDIR}"
-popd >/dev/null
+cargo build --release \
+    --target x86_64-unknown-uefi \
+    --manifest-path modules/Cargo.toml \
+    --package system76-firmware-update
+
+cp -v "modules/target/x64_64-unknown-uefi/system76-firmware-update.efi" "${BUILD}/${BASEDIR}/boot.efi"
+cp -rv "modules/uefi/system76-firmware-update/res" "${BUILD}/${BASEDIR}"
 
 # Copy firmware
 mkdir -p "${BUILD}/${BASEDIR}/firmware"

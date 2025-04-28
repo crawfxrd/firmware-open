@@ -37,18 +37,24 @@ EDK2_ARGS=(
 )
 
 # Rebuild firmware-setup (used by edk2)
-make -C apps/firmware-setup
+cargo build --release \
+    --target x86_64-unknown-uefi \
+    --manifest-path modules/Cargo.toml \
+    --package system76-firmware-setup
 EDK2_ARGS+=(
-    -D FIRMWARE_OPEN_FIRMWARE_SETUP="firmware-setup/firmware-setup.inf"
+    -D FIRMWARE_OPEN_FIRMWARE_SETUP="uefi/system76-firmware-setup/module.inf"
 )
 
 # Rebuild gop-policy (used by edk2)
 if [ -e "${MODEL_DIR}/IntelGopDriver.inf" ] && [ -e "${MODEL_DIR}/vbt.rom" ]
 then
     FIRMWARE_OPEN_VBT="${MODEL_DIR}/vbt.rom" \
-        make -C apps/gop-policy
+        cargo build --release \
+            --target x86_64-unknown-uefi \
+            --manifest-path modules/Cargo.toml \
+            --package system76-gop-policy
     EDK2_ARGS+=(
-        -D FIRMWARE_OPEN_GOP_POLICY="gop-policy/gop-policy.inf"
+        -D FIRMWARE_OPEN_GOP_POLICY="uefi/system76-gop-policy/module.inf"
         -D FIRMWARE_OPEN_GOP="IntelGopDriver.inf"
     )
 fi
@@ -66,7 +72,7 @@ then
 fi
 
 # Rebuild UefiPayloadPkg using edk2
-PACKAGES_PATH="${MODEL_DIR}:$(realpath apps)" \
+PACKAGES_PATH="${MODEL_DIR}:$(realpath modules)" \
     ./scripts/_build/edk2.sh \
         "${UEFIPAYLOAD}" \
         "${EDK2_ARGS[@]}"

@@ -46,3 +46,6 @@
 	path = tools/intel-spi
 	url = https://github.com/system76/intel-spi.git
 	branch = master
+[submodule "modules"]
+	path = modules
+	url = https://github.com/crawfxrd/uefi-modules-rs
